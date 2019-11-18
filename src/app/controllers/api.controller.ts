@@ -1,21 +1,22 @@
 import {
   Context, Delete, Get, HttpResponseCreated, HttpResponseNoContent,
-  HttpResponseNotFound, HttpResponseOK, Post, ValidateBody, ValidateParams
+  HttpResponseNotFound, HttpResponseOK, Post, ValidateBody, ValidateParams, HttpResponse
 } from '@foal/core';
 import { TodosBodyValidator, TodosParamsValidator } from '../validators/todos';
 import { getRepository } from 'typeorm';
 import { Todo } from '../entities/todo.entity';
+const name: string = 'todos';
 
 export class ApiController {
-
-  @Get('/todos')
-  async getTodos() {
+  private name: string = 'todos';
+  @Get(`/${name}`)
+  async getTodos(): Promise<HttpResponse> {
     return new HttpResponseOK(await getRepository(Todo).find());
   }
 
   @Post('/todos')
   @ValidateBody(TodosBodyValidator)
-  async postTodo(ctx: Context) {
+  async postTodo(ctx: Context): Promise<HttpResponse>{
     // Create a new todo with the body of the HTTP request.
     const todo = new Todo();
     todo.text = ctx.request.body.text;
@@ -29,7 +30,7 @@ export class ApiController {
 
   @Delete('/todos/:id')
   @ValidateParams(TodosParamsValidator)
-  async deleteTodo(ctx: Context) {
+  async deleteTodo(ctx: Context): Promise<HttpResponse> {
     // Get the todo with the id given in the URL if it exists.
     const todo = await getRepository(Todo).findOne({ id: parseInt(ctx.request.params.id, 10) });
 
